@@ -1,16 +1,16 @@
 import CartItem from "../CartItem/CartItem";
 import { Wrapper } from "./Cart.styles";
 import { CartItemType } from "../App";
+import { Link } from "react-router-dom";
 
 type Props = {
     cartItems: CartItemType[];
     addToCart: (clickedItem: CartItemType) => void;
     removeFromCart: (id: number) => void;
-    checkout: () => void;
     setOrderTotal: (orderTotal: number) => void;
 }
 
-const Cart: React.FC<Props> = ({ cartItems, addToCart, removeFromCart, checkout, setOrderTotal }) => {
+const Cart: React.FC<Props> = ({ cartItems, addToCart, removeFromCart, setOrderTotal }) => {
     const calculateTotal = (items: CartItemType[]): number => {
         let total: number = 0;
         for (const item of items) {
@@ -23,7 +23,6 @@ const Cart: React.FC<Props> = ({ cartItems, addToCart, removeFromCart, checkout,
 
     const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault();
-        checkout();
     };
 
     return (
@@ -35,7 +34,7 @@ const Cart: React.FC<Props> = ({ cartItems, addToCart, removeFromCart, checkout,
             ))}
             <h2>Total: Rs.{(calculateTotal(cartItems)).toFixed(0)}</h2>
             <form onSubmit={handleSubmit}>
-                {cartItems.length !== 0 ? <input type="submit" value="Checkout" /> : null}
+                {cartItems.length !== 0 ? <Link to="/checkout"><input type="submit" value="Checkout" /></Link> : null}
             </form>
         </Wrapper>
     )

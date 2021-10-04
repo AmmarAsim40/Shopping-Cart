@@ -2,6 +2,7 @@ import './AdminPanel.css';
 import { useState } from "react";
 import { Wrapper } from "./AdminPanel.styles";
 import { CartItemType } from "../App";
+import { Link } from "react-router-dom";
 
 type Props = {
     handleAddItem: (newItem: CartItemType) => void;
@@ -17,11 +18,14 @@ const AdminPanel: React.FC<Props> = ({ handleAddItem }) => {
     const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault();
         handleAddItem(newItem);
+        setNewItem({ id: 0, category: '', description: '', image: '', price: 0, title: '', amount: 0 });
     };
 
     return (
         <Wrapper>
-            <h2>Add Product</h2>
+            <h2>
+                Add Product
+            </h2>
             <form onSubmit={handleSubmit}>
                 <h3>
                     Title
@@ -56,6 +60,9 @@ const AdminPanel: React.FC<Props> = ({ handleAddItem }) => {
                 <br />
                 <br />
                 <input type="submit" value="Submit" />
+                <Link to="/">
+                    <input type="button" value="Go back" />
+                </Link>
             </form>
         </Wrapper>
     );

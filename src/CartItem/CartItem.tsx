@@ -1,6 +1,7 @@
 import Button from '@material-ui/core/Button';
 import { CartItemType } from '../App';
 import { Wrapper } from './CartItem.styles';
+import { Link } from "react-router-dom";
 
 type Props = {
     item: CartItemType;
@@ -11,7 +12,9 @@ type Props = {
 const CartItem: React.FC<Props> = ({ item, addToCart, removeFromCart }) => (
     <Wrapper>
         <div>
-            <h3>{item.title}</h3>
+            <Link to={`/${item.id}`}>
+                <h3>{item.title}</h3>
+            </Link>
             <div className="information">
                 <p>Price: Rs.{(item.price * 170).toFixed(0)}</p>
                 <p>Total: Rs.{(item.amount * item.price * 170).toFixed(0)}</p>

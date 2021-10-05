@@ -57,8 +57,7 @@ const AdminPanel: React.FC<Props> = ({ handleAddItem }) => {
                     Price
                 </h3>
                 <input name="price" onChange={handleChange} value={newItem.price} required type="number" />
-                <br />
-                <br />
+                <br /><br />
                 <input type="submit" value="Submit" />
                 <Link to="/">
                     <input type="button" value="Go back" />

@@ -2,7 +2,7 @@ import CartItem from "../CartItem/CartItem";
 import { Wrapper } from "./Cart.styles";
 import { CartItemType } from "../App";
 import { Link } from "react-router-dom";
-import { useSelector, useDispatch } from 'react-redux'
+import { useSelector, useDispatch } from 'react-redux';
 import { stateType, storeOrderTotal } from '../Store/StateSlice';
 
 type Props = {

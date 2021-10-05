@@ -13,9 +13,9 @@ const Item: React.FC<Props> = ({ item, handleAddToCart }) => (
         <img src={item.image} alt={item.title} />
         <div>
             <Link to={`/${item.id}`}>
-                <h3>{item.title}</h3>
+                <h3>{item.title.length <= 24 ? item.title : item.title.substring(0, 24) + '...'}</h3>
             </Link>
-            <p>{item.description}</p>
+            <p>{item.description.length <= 96 ? item.description : item.description.substring(0, 96) + '...'}</p>
             <h3>Rs.{(item.price * 170).toFixed(0)}</h3>
         </div>
         <Button onClick={() => handleAddToCart(item)}>Add to Cart</Button>

@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { useQuery } from "react-query";
 import Item from "./Item/Item";
 import Cart from "./Cart/Cart";
@@ -13,6 +13,8 @@ import { toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import { Wrapper, StyledButton, StyledButton2 } from "./App.styles";
 import { BrowserRouter as Router, Switch, Route, Link } from "react-router-dom";
+import { useSelector, useDispatch } from 'react-redux'
+import { stateType, storeCartItems, storeData, storeAdminPanelData, storeConcatData, storeCategory, filterConcatData } from './Store/StateSlice';
 
 toast.configure()
 
@@ -29,12 +31,19 @@ export type CartItemType = {
 const getItems = async (): Promise<CartItemType[]> => (await fetch('https://fakestoreapi.com/products')).json()
 
 const App = () => {
-  const [cartOpen, setCartOpen] = useState(false);
-  const [cartItems, setCartItems] = useState([] as CartItemType[]);
+  const dispatch = useDispatch();
   const { data, isLoading, error } = useQuery<CartItemType[]>('items', getItems);
-  const [adminPanelData, setAdminPanelData] = useState([] as CartItemType[]);
-  const [category, setCategory] = useState('');
-  const [orderTotal, setOrderTotal] = useState(0);
+  const [cartOpen, setCartOpen] = useState(false);
+  const cartItems = useSelector((state: stateType) => state.cartItems);
+  const adminPanelData = useSelector((state: stateType) => state.adminPanelData);
+  const concatData = useSelector((state: stateType) => state.concatData);
+  const category = useSelector((state: stateType) => state.category);
+
+  useEffect(() => {
+    dispatch(storeData(data || []));
+    dispatch(storeConcatData(data?.concat(adminPanelData) || []));
+    category && dispatch(filterConcatData());
+  }, [dispatch, data, adminPanelData, category]);
 
   const getTotalItems = (items: CartItemType[]) => {
     let totalItems: number = 0;
@@ -45,14 +54,12 @@ const App = () => {
   };
 
   const handleAddToCart = (clickedItem: CartItemType) => {
-    setCartItems(prev => {
-      if (prev.find(item => item.id === clickedItem.id)) {
-        return prev.map(item => item.id === clickedItem.id ? { ...item, amount: item.amount + 1 } : item)
-      }
-      else {
-        return [...prev, { ...clickedItem, amount: 1 }];
-      }
-    })
+    if (cartItems.find(item => item.id === clickedItem.id)) {
+      dispatch(storeCartItems(cartItems.map(item => item.id === clickedItem.id ? { ...item, amount: item.amount + 1 } : item)));
+    }
+    else {
+      dispatch(storeCartItems([...cartItems, { ...clickedItem, amount: 1 }]));
+    }
   };
 
   const handleAddItem = (newItem: CartItemType) => {
@@ -60,29 +67,25 @@ const App = () => {
     if (typeof dataLength === 'number') {
       newItem.id = dataLength + adminPanelData.length + 1;
       newItem.price /= 170;
-      setAdminPanelData(adminPanelData.concat(newItem));
+      dispatch(storeAdminPanelData(adminPanelData.concat(newItem)));
       toast("Product added");
     }
   };
 
   const handleRemoveFromCart = (id: number) => {
-    setCartItems(prev => {
-      const newCart = [...prev]
-      const relItem = newCart.find(item => item.id === id);
-      return --(relItem!.amount) ? newCart : newCart.filter(item => item.id !== id);
-    });
+    const newCart = [...cartItems]
+    const relItem = newCart.find(item => item.id === id);
+    dispatch(storeCartItems(--(relItem!.amount) ? newCart : newCart.filter(item => item.id !== id)));
   };
 
   const handleChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
-    setCategory(e.target.value);
+    dispatch(storeCategory(e.target.value));
   };
 
   const handleCheckout = () => {
-    setCartItems([]);
+    dispatch(storeCartItems([]));
     setCartOpen(false);
   };
-
-  let concatData: CartItemType[] = [];
 
   if (isLoading) {
     return <LinearProgress />;
@@ -91,19 +94,13 @@ const App = () => {
     return <div>Error fetching products! Please try again later.</div>;
   }
   else {
-    if (data !== undefined) {
-      concatData = data.concat(adminPanelData);
-      if (category !== '') {
-        concatData = concatData.filter(item => item.category === category);
-      }
-    }
     return (
       <Router>
         <Switch>
           <Route exact path='/'>
             <Wrapper>
               <Drawer anchor='right' open={cartOpen} onClose={() => setCartOpen(false)}>
-                <Cart cartItems={cartItems} addToCart={handleAddToCart} removeFromCart={handleRemoveFromCart} setOrderTotal={setOrderTotal} />
+                <Cart addToCart={handleAddToCart} removeFromCart={handleRemoveFromCart} />
               </Drawer>
               <StyledButton onClick={() => setCartOpen(true)}>
                 <Badge badgeContent={getTotalItems(cartItems)} color='error'>
@@ -139,7 +136,7 @@ const App = () => {
             <AdminPanel handleAddItem={handleAddItem} />
           </Route>
           <Route exact path="/checkout">
-            <Checkout orderTotal={orderTotal} handleCheckout={handleCheckout} />
+            <Checkout handleCheckout={handleCheckout} />
           </Route>
         </Switch>
       </Router>

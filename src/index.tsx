@@ -2,14 +2,18 @@ import ReactDOM from 'react-dom';
 import './index.css';
 import App from './App';
 import reportWebVitals from './reportWebVitals';
-import { QueryClient, QueryClientProvider } from 'react-query'
+import { QueryClient, QueryClientProvider } from 'react-query';
+import store from './Store/Store'
+import { Provider } from 'react-redux'
 
 const client = new QueryClient();
 
 ReactDOM.render(
-  <QueryClientProvider client={client}>
-    <App />
-  </QueryClientProvider>,
+  <Provider store={store}>
+    <QueryClientProvider client={client}>
+      <App />
+    </QueryClientProvider>
+  </Provider>,
   document.getElementById('root')
 );
 

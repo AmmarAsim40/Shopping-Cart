@@ -2,15 +2,18 @@ import CartItem from "../CartItem/CartItem";
 import { Wrapper } from "./Cart.styles";
 import { CartItemType } from "../App";
 import { Link } from "react-router-dom";
+import { useSelector, useDispatch } from 'react-redux'
+import { stateType, storeOrderTotal } from '../Store/StateSlice';
 
 type Props = {
-    cartItems: CartItemType[];
     addToCart: (clickedItem: CartItemType) => void;
     removeFromCart: (id: number) => void;
-    setOrderTotal: (orderTotal: number) => void;
 }
 
-const Cart: React.FC<Props> = ({ cartItems, addToCart, removeFromCart, setOrderTotal }) => {
+const Cart: React.FC<Props> = ({ addToCart, removeFromCart }) => {
+    const dispatch = useDispatch();
+    const cartItems = useSelector((state: stateType) => state.cartItems);
+
     const calculateTotal = (items: CartItemType[]): number => {
         let total: number = 0;
         for (const item of items) {
@@ -19,23 +22,17 @@ const Cart: React.FC<Props> = ({ cartItems, addToCart, removeFromCart, setOrderT
         return total;
     };
 
-    setOrderTotal(+calculateTotal(cartItems).toFixed(0));
-
-    const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
-        e.preventDefault();
-    };
+    dispatch(storeOrderTotal(+calculateTotal(cartItems).toFixed(0)));
 
     return (
         <Wrapper>
             <h2>Your Cart</h2>
             {cartItems.length === 0 ? <p>Nothing added yet!</p> : null}
-            {cartItems.map(item => (
+            {cartItems.map((item: CartItemType) => (
                 <CartItem key={item.id} item={item} addToCart={addToCart} removeFromCart={removeFromCart} />
             ))}
             <h2>Total: Rs.{(calculateTotal(cartItems)).toFixed(0)}</h2>
-            <form onSubmit={handleSubmit}>
-                {cartItems.length !== 0 ? <Link to="/checkout"><input type="submit" value="Checkout" /></Link> : null}
-            </form>
+            {cartItems.length !== 0 ? <Link to="/checkout"><input type="submit" value="Checkout" /></Link> : null}
         </Wrapper>
     )
 }

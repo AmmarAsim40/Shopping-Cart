@@ -2,13 +2,15 @@ import './Checkout.css';
 import { Wrapper } from "./Checkout.styles";
 import { Link } from "react-router-dom";
 import { useState } from 'react';
+import { useSelector } from 'react-redux'
+import { stateType } from '../Store/StateSlice';
 
 type Props = {
-    orderTotal: number;
     handleCheckout: () => void;
 }
 
-const Checkout: React.FC<Props> = ({ orderTotal, handleCheckout }) => {
+const Checkout: React.FC<Props> = ({ handleCheckout }) => {
+    const orderTotal = useSelector((state: stateType) => state.orderTotal);
     const [checkingOut, setCheckingOut] = useState(true);
 
     const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {

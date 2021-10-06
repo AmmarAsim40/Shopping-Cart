@@ -2,12 +2,12 @@ import CartItem from "../CartItem/CartItem";
 import { Wrapper } from "./Cart.styles";
 import { CartItemType } from "../App";
 import { Link } from "react-router-dom";
-import { useSelector, useDispatch } from 'react-redux'
+import { useSelector, useDispatch } from 'react-redux';
 import { stateType, storeOrderTotal } from '../Store/StateSlice';
 
 type Props = {
     addToCart: (clickedItem: CartItemType) => void;
-    removeFromCart: (id: number) => void;
+    removeFromCart: (id: number, action: string) => void;
 }
 
 const Cart: React.FC<Props> = ({ addToCart, removeFromCart }) => {

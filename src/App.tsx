@@ -4,16 +4,17 @@ import Item from "./Item/Item";
 import Cart from "./Cart/Cart";
 import AdminPanel from "./AdminPanel/AdminPanel";
 import Checkout from "./Checkout/Checkout";
-import Drawer from '@material-ui/core/Drawer'
+import ProductDetail from "./ProductDetail/ProductDetail";
+import Drawer from '@material-ui/core/Drawer';
 import LinearProgress from '@material-ui/core/LinearProgress';
 import Grid from '@material-ui/core/Grid';
-import ShoppingCartIcon from '@material-ui/icons/AddShoppingCart'
+import ShoppingCartIcon from '@material-ui/icons/AddShoppingCart';
 import Badge from '@material-ui/core/Badge'
 import { toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import { Wrapper, StyledButton, StyledButton2 } from "./App.styles";
 import { BrowserRouter as Router, Switch, Route, Link } from "react-router-dom";
-import { useSelector, useDispatch } from 'react-redux'
+import { useSelector, useDispatch } from 'react-redux';
 import { stateType, storeCartItems, storeData, storeAdminPanelData, storeConcatData, storeCategory, filterConcatData } from './Store/StateSlice';
 
 toast.configure()
@@ -60,6 +61,9 @@ const App = () => {
     else {
       dispatch(storeCartItems([...cartItems, { ...clickedItem, amount: 1 }]));
     }
+    if (!cartOpen) {
+      toast("Added to cart");
+    }
   };
 
   const handleAddItem = (newItem: CartItemType) => {
@@ -72,10 +76,13 @@ const App = () => {
     }
   };
 
-  const handleRemoveFromCart = (id: number) => {
-    const newCart = [...cartItems]
-    const relItem = newCart.find(item => item.id === id);
-    dispatch(storeCartItems(--(relItem!.amount) ? newCart : newCart.filter(item => item.id !== id)));
+  const handleRemoveFromCart = (id: number, action: string) => {
+    if (action === 'decrement') {
+      dispatch(storeCartItems(cartItems.map(item => item.id === id ? { ...item, amount: item.amount - 1 } : item)));
+    }
+    else {
+      dispatch(storeCartItems(cartItems.filter(item => item.id !== id)));
+    }
   };
 
   const handleChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
@@ -137,6 +144,9 @@ const App = () => {
           </Route>
           <Route exact path="/checkout">
             <Checkout handleCheckout={handleCheckout} />
+          </Route>
+          <Route exact path="/:id">
+            <ProductDetail handleAddToCart={handleAddToCart} />
           </Route>
         </Switch>
       </Router>

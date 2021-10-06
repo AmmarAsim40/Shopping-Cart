@@ -25,4 +25,12 @@ export const Wrapper = styled.div`
         height: 100%;
 
     }
+
+    .name {
+        height: 16px;
+    }
+
+    .description {
+        height: 64px;
+    }
 `;

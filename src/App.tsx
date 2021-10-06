@@ -61,7 +61,9 @@ const App = () => {
     else {
       dispatch(storeCartItems([...cartItems, { ...clickedItem, amount: 1 }]));
     }
-    toast("Added to cart");
+    if (!cartOpen) {
+      toast("Added to cart");
+    }
   };
 
   const handleAddItem = (newItem: CartItemType) => {
@@ -74,10 +76,13 @@ const App = () => {
     }
   };
 
-  const handleRemoveFromCart = (id: number) => {
-    const newCart = [...cartItems]
-    const relItem = newCart.find(item => item.id === id);
-    dispatch(storeCartItems(--(relItem!.amount) ? newCart : newCart.filter(item => item.id !== id)));
+  const handleRemoveFromCart = (id: number, action: string) => {
+    if (action === 'decrement') {
+      dispatch(storeCartItems(cartItems.map(item => item.id === id ? { ...item, amount: item.amount - 1 } : item)));
+    }
+    else {
+      dispatch(storeCartItems(cartItems.filter(item => item.id !== id)));
+    }
   };
 
   const handleChange = (e: React.ChangeEvent<HTMLSelectElement>) => {

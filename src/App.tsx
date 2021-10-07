@@ -17,8 +17,10 @@ import { BrowserRouter as Router, Switch, Route, Link } from "react-router-dom";
 import { useSelector, useDispatch } from 'react-redux';
 import { stateType, storeCartItems, storeData, storeAdminPanelData, storeConcatData, storeCategory, filterConcatData } from './Store/StateSlice';
 
+//Configuring the toasts library
 toast.configure()
 
+//Type to store products in, whether from API, admin panel, or cart
 export type CartItemType = {
   id: number;
   category: string;
@@ -29,9 +31,11 @@ export type CartItemType = {
   amount: number;
 }
 
+//Fetching products from API
 const getItems = async (): Promise<CartItemType[]> => (await fetch('https://fakestoreapi.com/products')).json()
 
 const App = () => {
+  //Variable declarations
   const dispatch = useDispatch();
   const { data, isLoading, error } = useQuery<CartItemType[]>('items', getItems);
   const [cartOpen, setCartOpen] = useState(false);
@@ -40,12 +44,14 @@ const App = () => {
   const concatData = useSelector((state: stateType) => state.concatData);
   const category = useSelector((state: stateType) => state.category);
 
+  //Called when data or category changes, to update homepage accordingly
   useEffect(() => {
     dispatch(storeData(data || []));
     dispatch(storeConcatData(data?.concat(adminPanelData) || []));
     category && dispatch(filterConcatData());
   }, [dispatch, data, adminPanelData, category]);
 
+  //Get total number of items in cart, to be displadyed as a badge on the cart button
   const getTotalItems = (items: CartItemType[]) => {
     let totalItems: number = 0;
     for (const item of items) {
@@ -54,6 +60,7 @@ const App = () => {
     return totalItems;
   };
 
+  //Add a product to cart
   const handleAddToCart = (clickedItem: CartItemType) => {
     if (cartItems.find(item => item.id === clickedItem.id)) {
       dispatch(storeCartItems(cartItems.map(item => item.id === clickedItem.id ? { ...item, amount: item.amount + 1 } : item)));
@@ -66,16 +73,25 @@ const App = () => {
     }
   };
 
+  //Add a new product from admin panel
   const handleAddItem = (newItem: CartItemType) => {
-    let dataLength: number | undefined = data?.length;
-    if (typeof dataLength === 'number') {
-      newItem.id = dataLength + adminPanelData.length + 1;
+    if (+newItem.id === -1) {
+      let dataLength: number | undefined = data?.length;
+      if (typeof dataLength === 'number') {
+        newItem.id = dataLength + adminPanelData.length + 1;
+        newItem.price /= 170;
+        dispatch(storeAdminPanelData(adminPanelData.concat(newItem)));
+        toast("Product added");
+      }
+    }
+    else {
       newItem.price /= 170;
-      dispatch(storeAdminPanelData(adminPanelData.concat(newItem)));
-      toast("Product added");
+      dispatch(storeAdminPanelData(adminPanelData.filter(item => item.id !== +newItem.id).concat(newItem)));
+      toast("Product updated");
     }
   };
 
+  //Remove or decrement a product in cart
   const handleRemoveFromCart = (id: number, action: string) => {
     if (action === 'decrement') {
       dispatch(storeCartItems(cartItems.map(item => item.id === id ? { ...item, amount: item.amount - 1 } : item)));
@@ -85,21 +101,26 @@ const App = () => {
     }
   };
 
+  //Change category variable as soon as a new category is selected from the dropdown
   const handleChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
     dispatch(storeCategory(e.target.value));
   };
 
+  //Empty cart and close it after checkout
   const handleCheckout = () => {
     dispatch(storeCartItems([]));
     setCartOpen(false);
   };
 
+  //Render loading bar
   if (isLoading) {
     return <LinearProgress />;
   }
+  //Render error message
   else if (error) {
     return <div>Error fetching products! Please try again later.</div>;
   }
+  //Render the homepage
   else {
     return (
       <Router>

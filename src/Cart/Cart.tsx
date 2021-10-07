@@ -7,7 +7,7 @@ import { stateType, storeOrderTotal } from '../Store/StateSlice';
 
 type Props = {
     addToCart: (clickedItem: CartItemType) => void;
-    removeFromCart: (id: number) => void;
+    removeFromCart: (id: number, action: string) => void;
 }
 
 const Cart: React.FC<Props> = ({ addToCart, removeFromCart }) => {

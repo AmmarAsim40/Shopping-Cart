@@ -17,6 +17,6 @@ export const Wrapper = styled.div`
     img {
         width: 25%;
         object-fit: cover;
-        margin: 40px;
+        margin: 24px;
     }
 `;
